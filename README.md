@@ -40,25 +40,31 @@ flowchart LR
 ## 🚀 快速开始
 
 ```bash
-# 1. 安装依赖（建议 Python 3.10+，使用虚拟环境）
+# 1. 安装依赖（Python 3.13，使用虚拟环境）
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt     # 含运行时依赖 + pytest
 
 # 2. 配置 API Key
 cp .env.example .env
 # 编辑 .env，填入你的智谱 Key（申请：https://open.bigmodel.cn/usercenter/apikeys）
 
-# 3. 生成演示文档
+# 3. 生成演示文档（可跳过，data/ 已自带）
 python generate_samples.py
 
-# 4. 构建向量库
+# 4. 构建向量库（改过 data/ 必须重跑）
 python knowledge_base.py
 
 # 5. 启动界面
 streamlit run rag_app.py      # 纯 RAG（服装电商）
 streamlit run agent_app.py    # ReAct Agent（扫地机器人）
+
+# 6. 跑测试
+pytest -q                     # 纯单元测试，不调 API；20 条集成评估默认跳过
 ```
+
+> **所有命令都要在仓库根目录执行**：`./chroma_db` 是相对路径，在别处启动会读到空库。
+> 同时开两个 app 时给第二个加 `--server.port 8502`。
 
 ### 验证是否跑通
 
@@ -84,12 +90,20 @@ streamlit run agent_app.py    # ReAct Agent（扫地机器人）
 ├── agent_app.py         Streamlit 界面 B：ReAct Agent
 ├── generate_samples.py  生成演示文档
 ├── data/                知识库原始文件
-└── docs/                详细架构与学习文档
+├── tests/               16 条单元测试 + 20 条问答评估集
+├── docs/                分层学习文档（主文档 + 3 个按需分册）
+├── skills/backend-sdd/  规格驱动开发 Skill + 填好的规格示例
+├── AGENTS.md            给 Agent / 新人看的项目约定（开工前必读）
+└── .github/workflows/   CI：pytest + gitleaks 密钥扫描
 ```
 
 ## 📚 文档
 
-- [项目架构与新人学习指南](docs/项目架构与新人学习指南.md) — 逐模块讲解、数据流拆解、常见疑问、动手练习
+- [项目架构与新人学习指南](docs/项目架构与新人学习指南.md) — **主文档**：整体架构、目录速查、一图看懂、文档导航
+- [链路详解](docs/链路详解.md) — 离线入库 / 在线问答 / Agent 决策三步拆解
+- [上手与练习](docs/上手与练习.md) — 跑通步骤、常见疑问、7 个动手练习
+- [已知问题与改进](docs/已知问题与改进.md) — 已修复记录与演进方向
+- [AGENTS.md](AGENTS.md) — 硬性约定、禁止事项、已知坑点（AI Agent 改代码前必读）
 
 ## 🛠 技术栈
 

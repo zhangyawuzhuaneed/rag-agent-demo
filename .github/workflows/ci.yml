@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: 单元测试
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      # config.py 在 import 时就会校验 Key，CI 没有真实凭证。
+      # 注入一个明确的假值，让纯单元测试能 import 项目模块；集成评估默认跳过，不会真的调 API。
+      - name: 运行测试
+        env:
+          ZHIPU_API_KEY: ci-dummy-key-not-for-api-calls
+        run: pytest -q
+
+      - name: 确认 .env 未被提交
+        run: |
+          if git ls-files --error-unmatch .env > /dev/null 2>&1; then
+            echo "::error::.env 已被纳入版本控制，立即停止"
+            exit 1
+          fi
+          echo "OK: .env 未入库"
+
+  secrets:
+    name: 密钥泄漏扫描
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # gitleaks 需要完整历史
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

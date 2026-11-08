@@ -45,8 +45,10 @@ def build(force_rebuild=False):
             skipped += 1
             continue
 
-        # 文件更新时先删旧块，防止新旧内容同时被召回
-        if p.name in state:
+        # 文件更新时先删旧块，防止新旧内容同时被召回。
+        # force_rebuild 时 state 被清空，若只判断 `p.name in state` 会跳过删除，
+        # 导致旧块残留、重复追加（曾出现 3 个文件入库后集合里躺着 6 块）。
+        if force_rebuild or p.name in state:
             vs.delete_by_source(p.name)
 
         raw = load_file(p)
