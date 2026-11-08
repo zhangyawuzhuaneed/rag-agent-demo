@@ -1,0 +1,35 @@
+# ===== 密钥与本地配置（绝不入库）=====
+.env
+.env.local
+*.key
+secrets.json
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+dist/
+
+# ===== 虚拟环境（约 900MB，绝不能提交）=====
+.venv/
+venv/
+env/
+ENV/
+
+# ===== 运行时产物（可由脚本重新生成）=====
+# 向量库：跑 python knowledge_base.py 就能重建，不必入库
+chroma_db/
+# 增量入库指纹：纯本机状态
+.ingest_state.json
+
+# ===== 工具与 IDE =====
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+.workbuddy/
+
+# ===== 个人草稿（Python 语法练习，与项目无关）=====
+test.py
